@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Поздравление</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    /* Заставка */
+    #splash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      z-index: 2000;
+      transition: opacity 1s ease;
+    }
+    #splash.hidden { opacity: 0; pointer-events: none; }
+    #splash img { max-width: 80%; }
+
+    /* Основной экран */
+    #main {
+      position: relative;
+      width: 100%; height: 100%;
+      display: none;
+      background: url("background.png") no-repeat center center;
+      background-size: cover;
+    }
+
+    #character {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      max-height: 70%;
+      image-rendering: pixelated;
+    }
+
+    /* Кнопки управления */
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #ff5;
+    }
+
+    /* Модалка */
+    #messageBox {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    #messageContent {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 350px;
+    }
+    #messageContent img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+    .msg-buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    #closeMessage, #downloadMessage {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+    #closeMessage { background: #f55; }
+    #downloadMessage { background: #5a5; }
+  </style>
+</head>
+<body>
+  <!-- Заставка -->
+  <div id="splash">
+    <img src="splash.png" alt="Заставка">
+  </div>
+
+  <!-- Основной экран -->
+  <div id="main">
+    <img id="character" src="char1_idle.gif" alt="Персонаж">
+
+    <div class="controls">
+      <button id="prev">◀️</button>
+      <button id="showMessage">🎁</button>
+      <button id="next">▶️</button>
+    </div>
+  </div>
+
+  <!-- Сообщение -->
+  <div id="messageBox">
+    <div id="messageContent">
+      <h3 id="messageTitle">Поздравление 🎉</h3>
+      <p id="messageText">Текст поздравления будет здесь</p>
+      <img id="cardImage" src="card1.png" alt="Открытка">
+
+      <div class="msg-buttons">
+        <button id="closeMessage">❌ Закрыть</button>
+        <button id="downloadMessage">⬇️ Скачать</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Данные персонажей с анимациями
+    const characters = [
+      {
+        appear: "char1_appear.gif",
+        idle: "char1_idle.gif",
+        card: "card1.png",
+        title: "Поздравление от персонажа 1 🎊",
+        text: "Пусть этот день принесет море улыбок и радости!"
+      },
+      {
+        appear: "char2_appear.gif",
+        idle: "char2_idle.gif",
+        card: "card2.png",
+        title: "Теплые слова от персонажа 2 💖",
+        text: "Желаю счастья, крепкого здоровья и новых побед!"
+      },
+      {
+        appear: "char3_appear.gif",
+        idle: "char3_idle.gif",
+        card: "card3.png",
+        title: "Пожелание от персонажа 3 🌟",
+        text: "Пусть все мечты сбудутся, а удача всегда будет рядом!"
+      }
+      // Добавляешь аналогично до 6 персонажей
+    ];
+
+    let current = 0;
+    const splash = document.getElementById("splash");
+    const main = document.getElementById("main");
+    const character = document.getElementById("character");
+// Заставка 3 сек
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        splash.classList.add("hidden");
+        setTimeout(() => {
+          splash.style.display = "none";
+          main.style.display = "block";
+          playAppearAnimation();
+        }, 1000);
+      }, 3000);
+    });
+
+    // Проиграть appear анимацию -> потом idle
+    function playAppearAnimation() {
+      character.src = characters[current].appear;
+      // ⚠️ Важно: здесь указана длительность appear-анимации (например 2000 мс)
+      setTimeout(() => {
+        character.src = characters[current].idle;
+      }, 2000);
+    }
+
+    // Переключение персонажей
+    document.getElementById("prev").addEventListener("click", () => {
+      current = (current - 1 + characters.length) % characters.length;
+      playAppearAnimation();
+    });
+    document.getElementById("next").addEventListener("click", () => {
+      current = (current + 1) % characters.length;
+      playAppearAnimation();
+    });
+
+    // Сообщение
+    const messageBox = document.getElementById("messageBox");
+    const messageTitle = document.getElementById("messageTitle");
+    const messageText = document.getElementById("messageText");
+    const cardImage = document.getElementById("cardImage");
+
+    document.getElementById("showMessage").addEventListener("click", () => {
+      const data = characters[current];
+      messageTitle.textContent = data.title;
+      messageText.textContent = data.text;
+      cardImage.src = data.card;
+      messageBox.style.display = "flex";
+    });
+
+    document.getElementById("closeMessage").addEventListener("click", () => {
+      messageBox.style.display = "none";
+    });
+
+    document.getElementById("downloadMessage").addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.href = characters[current].card;
+      link.download = "open_card.png";
+      link.click();
+    });
+  </script>
+</body>
+</html>
